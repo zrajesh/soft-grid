@@ -27,7 +27,7 @@
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
-    "eslint-plugin-frontend-axiom": "file:../../../.claude/plugins/cache/frontend-axiom/frontend-axiom/0.2.0/eslint-plugin-frontend-axiom",
+    "eslint-plugin-frontend-axiom": "file:./vendor/eslint-plugin-frontend-axiom",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
