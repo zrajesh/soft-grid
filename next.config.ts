@@ -2,23 +2,23 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// A per-request CSP nonce (via middleware) is the "ideal" way to allow
+// Next.js's own inline hydration/RSC bootstrap scripts, but it forces every
+// route into dynamic (server-rendered on demand) instead of static
+// generation — a real cost for a marketing site that should stay fully
+// static per this project's own rendering-strategy guidance. Given this
+// site has no dangerouslySetInnerHTML, no user-rendered HTML, and no auth,
+// the safer trade for a static site is: allow inline scripts (still
+// same-origin only — 'unsafe-inline' does NOT allow loading scripts from
+// other domains) rather than pay for dynamic rendering everywhere.
 const contentSecurityPolicy = [
   "default-src 'self'",
-  // Dev only: Next.js dev tooling (Fast Refresh/HMR eval, and inline
-  // bootstrap scripts like the one setting self.__next_r for its debug
-  // channel) needs both unsafe-eval and unsafe-inline — without them,
-  // dev-mode hydration breaks entirely and no client interactivity works.
-  // Production builds ship neither and need no such exception.
   isDev
-    ? "script-src 'self' 'unsafe-eval' 'unsafe-inline'"
-    : "script-src 'self'",
-  // style-src allows unsafe-inline: Next.js/Tailwind inject inline <style>
-  // tags for font optimization; style injection carries far less XSS risk
-  // than script injection, so script-src stays strict with no exceptions.
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  // Dev only: HMR's websocket connection to the dev server.
   isDev ? "connect-src 'self' ws:" : "connect-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
@@ -40,6 +40,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Next.js 16 removed next.config's built-in eslint-during-build
+  // integration entirely (`next build` never runs lint), so
+  // eslint-plugin-frontend-axiom (vendored under vendor/) is already
+  // excluded from production builds — it only runs via `npm run lint`.
   async headers() {
     return [
       {
